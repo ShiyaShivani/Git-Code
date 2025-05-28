@@ -13,6 +13,23 @@ type LanguageConfig = Record<
   }
 >;
 
+// Define proper types for Monaco themes
+type MonacoBuiltinTheme = "vs" | "vs-dark" | "hc-black" | "hc-light";
+
+interface ThemeRule {
+  token: string;
+  foreground?: string;
+  background?: string;
+  fontStyle?: string;
+}
+
+interface ThemeDefinition {
+  base: MonacoBuiltinTheme;
+  inherit: boolean;
+  rules: ThemeRule[];
+  colors: Record<string, string>;
+}
+
 export const LANGUAGE_CONFIG: LanguageConfig = {
   javascript: {
     id: "javascript",
@@ -344,9 +361,10 @@ export const THEMES: Theme[] = [
   { id: "solarized-dark", label: "Solarized Dark", color: "#002b36" },
 ];
 
-export const THEME_DEFINITONS = {
+// Use proper typing with const assertion to ensure type safety
+export const THEME_DEFINITONS: Record<string, ThemeDefinition> = {
   "github-dark": {
-    base: "vs-dark",
+    base: "vs-dark" as const,
     inherit: true,
     rules: [
       { token: "comment", foreground: "6e7681" },
@@ -370,7 +388,7 @@ export const THEME_DEFINITONS = {
     },
   },
   monokai: {
-    base: "vs-dark",
+    base: "vs-dark" as const,
     inherit: true,
     rules: [
       { token: "comment", foreground: "75715E" },
@@ -394,7 +412,7 @@ export const THEME_DEFINITONS = {
     },
   },
   "solarized-dark": {
-    base: "vs-dark",
+    base: "vs-dark" as const,
     inherit: true,
     rules: [
       { token: "comment", foreground: "586e75" },
@@ -417,13 +435,13 @@ export const THEME_DEFINITONS = {
       "editor.selectionHighlightBackground": "#073642",
     },
   },
-};
+} as const;
 
 // Helper function to define themes in Monaco
 export const defineMonacoThemes = (monaco: Monaco) => {
   Object.entries(THEME_DEFINITONS).forEach(([themeName, themeData]) => {
     monaco.editor.defineTheme(themeName, {
-      base: themeData.base,
+      base: themeData.base, // Now properly typed as MonacoBuiltinTheme
       inherit: themeData.inherit,
       rules: themeData.rules.map((rule) => ({
         ...rule,

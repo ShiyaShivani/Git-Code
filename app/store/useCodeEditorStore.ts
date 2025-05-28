@@ -1,15 +1,15 @@
 import { CodeEditorState } from "./../types/index";
 import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
-import { Monaco } from "@monaco-editor/react";
-
+// import { Monaco } from "@monaco-editor/react";
+import type * as monaco from "monaco-editor";
 
 const getInitialState = () => {
-  // if we're on the server, return default values  
+  // if we're on the server, return default values
   if (typeof window === "undefined") {
     return {
       language: "javascript",
-      fontSize: 15,
+      fontSize: 16,
       theme: "vs-dark",
     };
   }
@@ -37,9 +37,14 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
     editor: null,
     executionResult: null,
 
-    getCode: () => get().editor?.getValue() || "",
+    getCode: () => {
+      const editor = get().editor;
+      return editor ? editor.getValue() : "";
+    },
+    
 
-    setEditor: (editor: Monaco) => {
+
+    setEditor: (editor: monaco.editor.IStandaloneCodeEditor) => {
       const savedCode = localStorage.getItem(`editor-code-${get().language}`);
       if (savedCode) editor.setValue(savedCode);
 
@@ -58,7 +63,10 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
     setLanguage: (language: string) => {
       // Save current language code before switching
-      const currentCode = get().editor?.getValue();
+      const editor = get().editor;
+      const currentCode = editor ? editor.getValue() : "";
+
+
       if (currentCode) {
         localStorage.setItem(`editor-code-${get().language}`, currentCode);
       }
